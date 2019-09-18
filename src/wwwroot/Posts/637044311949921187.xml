@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<post>
+  <title>Test</title>
+  <slug>mypost</slug>
+  <pubDate>2019-09-18T19:20:55.068Z</pubDate>
+  <lastModified>2019-09-18T19:21:17.678Z</lastModified>
+  <excerpt>please read my blog post</excerpt>
+  <content>&lt;p&gt;Hi there! this is my first blog post. please be kind.&lt;/p&gt;</content>
+  <ispublished>true</ispublished>
+  <categories>
+    <category>welcome</category>
+    <category>thisisatag</category>
+  </categories>
+  <comments>
+    <comment isAdmin="true" id="80a8bc1a-137c-4a65-a057-01ec0c103957">
+      <author>Alex Gritton</author>
+      <email>alexggritton@gmail.com</email>
+      <date>2019-09-18T19:21:17.670Z</date>
+      <content>This is my comment</content>
+    </comment>
+  </comments>
+</post>

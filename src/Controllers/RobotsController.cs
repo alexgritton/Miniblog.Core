@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.SyndicationFeed;
-using Microsoft.SyndicationFeed.Atom;
-using Microsoft.SyndicationFeed.Rss;
 using Miniblog.Core.Services;
 using WebEssentials.AspNetCore.Pwa;
 
@@ -110,54 +109,61 @@ namespace Miniblog.Core.Controllers
             using (XmlWriter xmlWriter = XmlWriter.Create(Response.Body, new XmlWriterSettings() { Async = true, Indent = true, Encoding = new UTF8Encoding(false) }))
             {
                 var posts = await _blog.GetPosts(10);
-                var writer = await GetWriter(type, xmlWriter, posts.Max(p => p.PubDate));
-
+                // var writer = await GetWriter(type, xmlWriter, posts.Max(p => p.PubDate));
+                
+                List<SyndicationItem> items = new List<SyndicationItem>();
                 foreach (Models.Post post in posts)
                 {
-                    var item = new AtomEntry
-                    {
-                        Title = post.Title,
-                        Description = post.Content,
-                        Id = host + post.GetLink(),
-                        Published = post.PubDate,
-                        LastUpdated = post.LastModified,
-                        ContentType = "html",
-                    };
+                    var item = new SyndicationItem(post.Title, new TextSyndicationContent(post.Content, TextSyndicationContentKind.Html), new Uri(host+post.GetLink()), host+post.GetLink(), post.LastModified);
+                    item.PublishDate = post.PubDate;
 
                     foreach (string category in post.Categories)
-                    {
-                        item.AddCategory(new SyndicationCategory(category));
+                    {                        
+                        item.Categories.Add(new SyndicationCategory(category));
                     }
 
-                    item.AddContributor(new SyndicationPerson("test@example.com", _settings.Value.Owner));
-                    item.AddLink(new SyndicationLink(new Uri(item.Id)));
+                    
+                    item.Contributors.Add(new SyndicationPerson("test@example.com", "Alex Gritton", host));
+                    item.Links.Add(new SyndicationLink(new Uri(item.Id)));
 
-                    await writer.Write(item);
+                    items.Add(item);
+                    // await writer.Write(item);
                 }
+                var feed = new SyndicationFeed(_manifest.Name, _manifest.Description, new Uri(host), "Miniblog.Core", posts.Max(p=>p.PubDate), items);
+                if(type.Equals("rss", StringComparison.OrdinalIgnoreCase)){
+                    var formatter = new Rss20FeedFormatter(feed, false);
+                    formatter.WriteTo(xmlWriter);
+                    
+                }
+                else{
+                    var formatter = new Atom10FeedFormatter(feed);
+                    formatter.WriteTo(xmlWriter);
+                }
+                
             }
         }
 
-        private async Task<ISyndicationFeedWriter> GetWriter(string type, XmlWriter xmlWriter, DateTime updated)
-        {
-            string host = Request.Scheme + "://" + Request.Host + "/";
+        // private async Task<SyndicationFeedFormatter> GetWriter(string type, XmlWriter xmlWriter, DateTime updated)
+        // {
+        //     string host = Request.Scheme + "://" + Request.Host + "/";
 
-            if (type.Equals("rss", StringComparison.OrdinalIgnoreCase))
-            {
-                var rss = new RssFeedWriter(xmlWriter);
-                await rss.WriteTitle(_manifest.Name);
-                await rss.WriteDescription(_manifest.Description);
-                await rss.WriteGenerator("Miniblog.Core");
-                await rss.WriteValue("link", host);
-                return rss;
-            }
+        //     if (type.Equals("rss", StringComparison.OrdinalIgnoreCase))
+        //     {
+        //         var rss = new Rss20FeedFormatter();
+        //         await rss.WriteTitle(_manifest.Name);
+        //         await rss.WriteDescription(_manifest.Description);
+        //         await rss.WriteGenerator("Miniblog.Core");
+        //         await rss.WriteValue("link", host);
+        //         return rss;
+        //     }
 
-            var atom = new AtomFeedWriter(xmlWriter);
-            await atom.WriteTitle(_manifest.Name);
-            await atom.WriteId(host);
-            await atom.WriteSubtitle(_manifest.Description);
-            await atom.WriteGenerator("Miniblog.Core", "https://github.com/madskristensen/Miniblog.Core", "1.0");
-            await atom.WriteValue("updated", updated.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-            return atom;
-        }
+        //     var atom = new Atom10FeedFormatter(xmlWriter);
+        //     await atom.WriteTitle(_manifest.Name);
+        //     await atom.WriteId(host);
+        //     await atom.WriteSubtitle(_manifest.Description);
+        //     await atom.WriteGenerator("Miniblog.Core", "https://github.com/madskristensen/Miniblog.Core", "1.0");
+        //     await atom.WriteValue("updated", updated.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+        //     return atom;
+        // }
     }
 }
