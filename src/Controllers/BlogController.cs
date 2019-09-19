@@ -198,13 +198,13 @@ namespace Miniblog.Core.Controllers
             comment.Content = comment.Content.Trim();
             comment.Author = comment.Author.Trim();
             comment.Email = comment.Email.Trim();
+            comment.PostId = post.Id;
 
             // the website form key should have been removed by javascript
             // unless the comment was posted by a spam robot
             if (!Request.Form.ContainsKey("website"))
             {
-                post.Comments.Add(comment);
-                await _blog.SavePost(post);
+                await _blog.SaveComment(comment);
             }
 
             return Redirect(post.GetEncodedLink() + "#" + comment.Id);

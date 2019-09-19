@@ -300,5 +300,10 @@ namespace Miniblog.Core.Services
         {
             return _contextAccessor.HttpContext?.User?.Identity.IsAuthenticated == true;
         }
+
+        public Task SaveComment(Comment comment)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

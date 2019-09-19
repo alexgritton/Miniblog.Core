@@ -111,7 +111,9 @@ namespace Miniblog.Core.Services
             if(category.Post == null && string.IsNullOrEmpty(category.PostId)) return;
             category.CategoryName = category.Category == null ? category.CategoryName.ToLower() : category.Category.Name.ToLower();
             category.PostId = category.Post == null ? category.PostId : category.Post.Id;
-            await SaveCategory(category.Category);
+            await SaveCategory(category.Category);   
+            category.Category = null;
+            category.Post = null;         
             var existing = await _context.PostCategory.AsNoTracking().FirstOrDefaultAsync(x=>x.CategoryName == category.CategoryName && x.PostId == category.PostId);
             if(existing!= null) return;
             await _context.AddAsync(category);

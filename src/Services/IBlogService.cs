@@ -24,6 +24,7 @@ namespace Miniblog.Core.Services
         Task DeletePost(Post post);
 
         Task<string> SaveFile(byte[] bytes, string fileName, string suffix = null);
+        Task SaveComment(Comment comment);
     }
 
     public abstract class InMemoryBlogServiceBase : IBlogService
@@ -111,6 +112,11 @@ namespace Miniblog.Core.Services
         protected bool IsAdmin()
         {
             return ContextAccessor.HttpContext?.User?.Identity.IsAuthenticated == true;
+        }
+
+        public Task SaveComment(Comment comment)
+        {
+            throw new NotImplementedException();
         }
     }
 }
