@@ -27,13 +27,13 @@
     </div>
 
     <footer>
-        @if (Model.Categories.Any())
+        @if (Model.PostCategories.Any())
         {
             <ul class="categories">
                 <li> Posted in </li>
-                @foreach (Category cat in Model.Categories)
+                @foreach (PostCategory cat in Model.PostCategories)
                 {
-                    <li itemprop="articleSection"><a asp-controller="Blog" asp-action="Category" asp-route-category="@cat.Name.ToLowerInvariant()" asp-route-page="">@cat.Name</a></li>
+                    <li itemprop="articleSection"><a asp-controller="Blog" asp-action="Category" asp-route-category="@cat.CategoryName.ToLowerInvariant()" asp-route-page="">@cat.CategoryName</a></li>
                 }
             </ul>
             <text>and has</text>

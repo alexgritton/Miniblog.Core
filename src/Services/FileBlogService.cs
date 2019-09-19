@@ -46,7 +46,7 @@ namespace Miniblog.Core.Services
         public virtual Task<IEnumerable<Post>> GetPostsByCategory(string category)
         {
             bool isAdmin = IsAdmin();
-            var posts = _cache.Where(x=>x.PubDate <= DateTime.UtcNow && (x.IsPublished || isAdmin) && x.Categories.Any(c=>c.Name.ToLower() == category.ToLower()));
+            var posts = _cache.Where(x=>x.PubDate <= DateTime.UtcNow && (x.IsPublished || isAdmin) && x.PostCategories.Any(c=>c.CategoryName.ToLower() == category.ToLower()));
 
             return Task.FromResult(posts);
         }
@@ -83,8 +83,8 @@ namespace Miniblog.Core.Services
 
             var categories = _cache
                 .Where(p => p.IsPublished || isAdmin)
-                .SelectMany(post => post.Categories)
-                .Select(cat => cat.Name.ToLowerInvariant())
+                .SelectMany(post => post.PostCategories)
+                .Select(cat => cat.CategoryName.ToLowerInvariant())
                 .Distinct();
 
             return Task.FromResult(categories);
@@ -109,9 +109,9 @@ namespace Miniblog.Core.Services
                             ));
 
             XElement categories = doc.XPathSelectElement("post/categories");
-            foreach (var category in post.Categories)
+            foreach (var category in post.PostCategories)
             {
-                categories.Add(new XElement("category", category.Name));
+                categories.Add(new XElement("category", category.CategoryName));
             }
 
             XElement comments = doc.XPathSelectElement("post/comments");
@@ -230,7 +230,7 @@ namespace Miniblog.Core.Services
                 list.Add(node.Value);
             }
 
-            post.Categories = list.Select(c=>new Category{Name = c}).ToArray();
+            post.PostCategories = list.Select(c=>new PostCategory{CategoryName = c.ToLower(), Category = new Category{Name = c.ToLower()}, PostId = post.Id}).ToArray();
         }
 
         private static void LoadComments(Post post, XElement doc)

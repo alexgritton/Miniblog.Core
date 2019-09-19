@@ -52,7 +52,7 @@ namespace Miniblog.Core.Services
         {
             bool isAdmin = IsAdmin();
 
-            var posts = Cache.Where(x=>x.PubDate <= DateTime.UtcNow && (x.IsPublished || isAdmin) && x.Categories.Any(c=>c.Name.ToLower() == category.ToLower()));
+            var posts = Cache.Where(x=>x.PubDate <= DateTime.UtcNow && (x.IsPublished || isAdmin) && x.PostCategories.Any(c=>c.CategoryName.ToLower() == category.ToLower()));
 
             return Task.FromResult(posts);
 
@@ -90,8 +90,8 @@ namespace Miniblog.Core.Services
 
             var categories = Cache
                 .Where(p => p.IsPublished || isAdmin)
-                .SelectMany(post => post.Categories)
-                .Select(cat => cat.Name.ToLowerInvariant())
+                .SelectMany(post => post.PostCategories)
+                .Select(cat => cat.CategoryName.ToLowerInvariant())
                 .Distinct();
 
             return Task.FromResult(categories);

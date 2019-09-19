@@ -27,7 +27,7 @@ namespace Miniblog.Core.Models
 
         public bool IsPublished { get; set; } = true;
 
-        public IList<Category> Categories { get; set; } = new List<Category>();
+        public IList<PostCategory> PostCategories { get; set; } = new List<PostCategory>();
 
         public IList<Comment> Comments { get; } = new List<Comment>();
 

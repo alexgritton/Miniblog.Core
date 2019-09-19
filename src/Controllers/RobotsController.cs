@@ -117,9 +117,9 @@ namespace Miniblog.Core.Controllers
                     var item = new SyndicationItem(post.Title, new TextSyndicationContent(post.Content, TextSyndicationContentKind.Html), new Uri(host+post.GetLink()), host+post.GetLink(), post.LastModified);
                     item.PublishDate = post.PubDate;
 
-                    foreach (var category in post.Categories)
+                    foreach (var category in post.PostCategories)
                     {                        
-                        item.Categories.Add(new SyndicationCategory(category.Name));
+                        item.Categories.Add(new SyndicationCategory(category.CategoryName));
                     }
 
                     

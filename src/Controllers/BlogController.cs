@@ -104,7 +104,7 @@ namespace Miniblog.Core.Controllers
             var existing = await _blog.GetPostById(post.Id) ?? post;
             string categories = Request.Form["categories"];
 
-            existing.Categories = categories.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(c => new Category{Name = c.Trim().ToLowerInvariant()}).ToList();
+            existing.PostCategories = categories.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(c => new PostCategory{Category = new Category{Name = c.Trim().ToLowerInvariant()}, PostId = existing.Id}).ToList();
             existing.Title = post.Title.Trim();
             existing.Slug = !string.IsNullOrWhiteSpace(post.Slug) ? post.Slug.Trim() : Models.Post.CreateSlug(post.Title);
             existing.IsPublished = post.IsPublished;
