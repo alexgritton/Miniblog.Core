@@ -61,13 +61,21 @@ namespace Miniblog.Core.Services
             }
             else
             {
+                //get past postcats and remove any not in postcats passed in with post.
                 _context.Update(post);
             }
             await _context.SaveChangesAsync();
-
+            
+            var oldPostCats = await _context.PostCategory.AsNoTracking().Where(x=>x.PostId == post.Id).ToListAsync();
             foreach(var postCat in postCats){
+                if(oldPostCats.Any(x=>x.CategoryName == postCat.CategoryName)) continue;
                 await SavePostCategory(postCat);
             }
+            foreach(var oldPostCat in oldPostCats){
+                if(postCats.Any(x=>x.CategoryName == oldPostCat.CategoryName)) continue;
+                await DeletePostCategory(oldPostCat);
+            }
+
         }
 
         public async Task DeletePost(Post post)

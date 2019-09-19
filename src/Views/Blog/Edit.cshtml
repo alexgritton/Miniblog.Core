@@ -26,8 +26,8 @@
         <br />
 
         <label for="categories" class="label">Tags</label>
-        <input type="text" name="selecttag" id="selecttag" aria-describedby="desc_categories" list="taglist" placeholder="@string.Join(", ", Model.PostCategories)"  />
-        <input type="text" name="categories" id="categories" value="@string.Join(", ", Model.PostCategories)" hidden />
+        <input type="text" name="selecttag" id="selecttag" aria-describedby="desc_categories" list="taglist" placeholder="@string.Join(", ", Model.PostCategories.Select(x=>x.CategoryName))"  />
+        <input type="text" name="categories" id="categories" value="@string.Join(", ", Model.PostCategories.Select(x=>x.CategoryName))" hidden />
         <span class="desc" id="desc_categories">Select, or build a comma separated list of keywords - to remove double the keyword</span>
         <datalist id="taglist">
             @foreach (var cat in allCats)
