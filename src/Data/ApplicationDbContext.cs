@@ -12,6 +12,7 @@ namespace GenericBlog.Data
         public DbSet<Post> Post { get; set; }
         public DbSet<Comment> Comment { get; set; }
         public DbSet<Category> Category { get; set; }
+        public DbSet<PostCategory> PostCategory { get; set; }
         public ApplicationDbContext(DbContextOptions options)
             : base(options)
         {

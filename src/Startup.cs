@@ -1,4 +1,5 @@
-﻿using GenericBlog.Data;
+﻿using System;
+using GenericBlog.Data;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -45,6 +46,11 @@ namespace Miniblog.Core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<CookiePolicyOptions>(options =>
+    {
+        options.CheckConsentNeeded = context => true;
+        options.MinimumSameSitePolicy = SameSiteMode.None;
+    });
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseMySQL(Configuration.GetConnectionString("DefaultConnection"));
@@ -53,11 +59,23 @@ namespace Miniblog.Core
             //password options are set in the buyerpasswordvalidator
             services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
+            services.ConfigureApplicationCookie(options =>
+    {
+        // Cookie settings
+        options.Cookie.HttpOnly = false;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+        options.LoginPath = "/Login";
+        // options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+        options.SlidingExpiration = true;
+    });
+
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddTransient<IUserServices, DbUserService>();
-            services.AddSingleton<IBlogService, FileBlogService>();
+            services.AddTransient<IBlogService, DbBlogService>();
             services.Configure<BlogSettings>(Configuration.GetSection("blog"));
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMetaWeblog<MetaWeblogService>();
@@ -76,15 +94,6 @@ namespace Miniblog.Core
                     Duration = 3600
                 };
             });
-
-            // Cookie authentication.
-            services
-                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/login/";
-                    options.LogoutPath = "/logout/";
-                });
 
             // HTML minification (https://github.com/Taritsyn/WebMarkupMin)
             services
@@ -134,12 +143,13 @@ namespace Miniblog.Core
 
             app.UseStaticFilesWithCache();
 
-            if (Configuration.GetValue<bool>("forcessl"))
-            {
+            // if (Configuration.GetValue<bool>("forcessl"))
+            // {
                 app.UseHttpsRedirection();
-            }
+            // }
 
             app.UseMetaWeblog("/metaweblog");
+            app.UseCookiePolicy();
             app.UseAuthentication();
 
             app.UseOutputCaching();

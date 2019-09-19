@@ -18,5 +18,9 @@ namespace Miniblog.Core.Services
             if(user == null) return false;
             return await _userManager.CheckPasswordAsync(user, password);
         }
+
+        public async Task CreateUser(string username, string password){
+            var result = await _userManager.CreateAsync(new User{Email = username, UserName = username}, password);
+        }
     }
 }

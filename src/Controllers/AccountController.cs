@@ -3,28 +3,30 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Miniblog.Core.Models;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Miniblog.Core.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace Miniblog.Core.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
-        private readonly IUserServices _userServices;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AccountController(IUserServices userServices)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
-            _userServices = userServices;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
 
         [Route("/login")]
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public async Task<IActionResult> Login(string returnUrl = null)
         {
+            // await SeedUser();
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -35,16 +37,13 @@ namespace Miniblog.Core.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
 
-            if (ModelState.IsValid && await _userServices.ValidateUser(model.UserName, model.Password))
+            if (ModelState.IsValid)
             {
-                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-                identity.AddClaim(new Claim(ClaimTypes.Name, model.UserName));
-
-                var principle = new ClaimsPrincipal(identity);
-                var properties = new AuthenticationProperties {IsPersistent = model.RememberMe};
-                await HttpContext.SignInAsync(principle, properties);
-
-                return LocalRedirect(returnUrl ?? "/");
+                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+                if (result.Succeeded)
+                {
+                    return LocalRedirect(returnUrl ?? "/");
+                }
             }
 
             ModelState.AddModelError(string.Empty, "Username or password is invalid.");
@@ -54,8 +53,13 @@ namespace Miniblog.Core.Controllers
         [Route("/logout")]
         public async Task<IActionResult> LogOutAsync()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
             return LocalRedirect("/");
+        }
+
+        private async Task SeedUser()
+        {
+            // await UserManager.CreateUser("alexgritton@gmail.com", "Password1!");
         }
     }
 }

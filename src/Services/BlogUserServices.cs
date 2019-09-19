@@ -15,6 +15,11 @@ namespace Miniblog.Core.Services
             _config = config;
         }
 
+        public Task CreateUser(string username, string password)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> ValidateUser(string username, string password)
         {
             return username == _config["user:username"] && VerifyHashedPassword(password, _config);
