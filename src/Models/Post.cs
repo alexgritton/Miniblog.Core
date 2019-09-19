@@ -7,10 +7,8 @@ using System.Text.RegularExpressions;
 
 namespace Miniblog.Core.Models
 {
-    public class Post
+    public class Post : Base
     {
-        [Required]
-        public string ID { get; set; } = DateTime.UtcNow.Ticks.ToString();
 
         [Required]
         public string Title { get; set; }
@@ -29,7 +27,7 @@ namespace Miniblog.Core.Models
 
         public bool IsPublished { get; set; } = true;
 
-        public IList<string> Categories { get; set; } = new List<string>();
+        public IList<Category> Categories { get; set; } = new List<Category>();
 
         public IList<Comment> Comments { get; } = new List<Comment>();
 

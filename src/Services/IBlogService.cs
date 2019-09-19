@@ -52,10 +52,7 @@ namespace Miniblog.Core.Services
         {
             bool isAdmin = IsAdmin();
 
-            var posts = from p in Cache
-                        where p.PubDate <= DateTime.UtcNow && (p.IsPublished || isAdmin)
-                        where p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase)
-                        select p;
+            var posts = Cache.Where(x=>x.PubDate <= DateTime.UtcNow && (x.IsPublished || isAdmin) && x.Categories.Any(c=>c.Name.ToLower() == category.ToLower()));
 
             return Task.FromResult(posts);
 
@@ -76,7 +73,7 @@ namespace Miniblog.Core.Services
 
         public virtual Task<Post> GetPostById(string id)
         {
-            var post = Cache.FirstOrDefault(p => p.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+            var post = Cache.FirstOrDefault(p => p.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
             bool isAdmin = IsAdmin();
 
             if (post != null && post.PubDate <= DateTime.UtcNow && (post.IsPublished || isAdmin))
@@ -94,7 +91,7 @@ namespace Miniblog.Core.Services
             var categories = Cache
                 .Where(p => p.IsPublished || isAdmin)
                 .SelectMany(post => post.Categories)
-                .Select(cat => cat.ToLowerInvariant())
+                .Select(cat => cat.Name.ToLowerInvariant())
                 .Distinct();
 
             return Task.FromResult(categories);

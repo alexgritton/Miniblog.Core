@@ -35,7 +35,7 @@ namespace Miniblog.Core.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
 
-            if (ModelState.IsValid && _userServices.ValidateUser(model.UserName, model.Password))
+            if (ModelState.IsValid && await _userServices.ValidateUser(model.UserName, model.Password))
             {
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
                 identity.AddClaim(new Claim(ClaimTypes.Name, model.UserName));

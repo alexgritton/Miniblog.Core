@@ -8,6 +8,9 @@ namespace GenericBlog.Data
     public class ApplicationDbContext : IdentityDbContext
     {
         public DbSet<User> User { get; set; }
+        public DbSet<Post> Post { get; set; }
+        public DbSet<Comment> Comment { get; set; }
+        public DbSet<Category> Category { get; set; }
         public ApplicationDbContext(DbContextOptions options)
             : base(options)
         {

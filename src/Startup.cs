@@ -45,18 +45,18 @@ namespace Miniblog.Core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddDbContext<ApplicationDbContext>(options =>
-            // {
-            //     options.UseMySQL(Configuration.GetConnectionString("DefaultConnection"));
-            // });
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection"));
+            });
 
-            // //password options are set in the buyerpasswordvalidator
-            // services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+            //password options are set in the buyerpasswordvalidator
+            services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSingleton<IUserServices, BlogUserServices>();
+            services.AddTransient<IUserServices, DbUserService>();
             services.AddSingleton<IBlogService, FileBlogService>();
             services.Configure<BlogSettings>(Configuration.GetSection("blog"));
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();

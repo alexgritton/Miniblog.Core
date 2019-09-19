@@ -117,9 +117,9 @@ namespace Miniblog.Core.Controllers
                     var item = new SyndicationItem(post.Title, new TextSyndicationContent(post.Content, TextSyndicationContentKind.Html), new Uri(host+post.GetLink()), host+post.GetLink(), post.LastModified);
                     item.PublishDate = post.PubDate;
 
-                    foreach (string category in post.Categories)
+                    foreach (var category in post.Categories)
                     {                        
-                        item.Categories.Add(new SyndicationCategory(category));
+                        item.Categories.Add(new SyndicationCategory(category.Name));
                     }
 
                     
@@ -142,28 +142,5 @@ namespace Miniblog.Core.Controllers
                 
             }
         }
-
-        // private async Task<SyndicationFeedFormatter> GetWriter(string type, XmlWriter xmlWriter, DateTime updated)
-        // {
-        //     string host = Request.Scheme + "://" + Request.Host + "/";
-
-        //     if (type.Equals("rss", StringComparison.OrdinalIgnoreCase))
-        //     {
-        //         var rss = new Rss20FeedFormatter();
-        //         await rss.WriteTitle(_manifest.Name);
-        //         await rss.WriteDescription(_manifest.Description);
-        //         await rss.WriteGenerator("Miniblog.Core");
-        //         await rss.WriteValue("link", host);
-        //         return rss;
-        //     }
-
-        //     var atom = new Atom10FeedFormatter(xmlWriter);
-        //     await atom.WriteTitle(_manifest.Name);
-        //     await atom.WriteId(host);
-        //     await atom.WriteSubtitle(_manifest.Description);
-        //     await atom.WriteGenerator("Miniblog.Core", "https://github.com/madskristensen/Miniblog.Core", "1.0");
-        //     await atom.WriteValue("updated", updated.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-        //     return atom;
-        // }
     }
 }

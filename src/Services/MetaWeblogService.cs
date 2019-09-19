@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Miniblog.Core.Models;
 using WilderMinds.MetaWeblog;
 
 namespace Miniblog.Core.Services
@@ -33,7 +35,7 @@ namespace Miniblog.Core.Services
                 Slug = !string.IsNullOrWhiteSpace(post.wp_slug) ? post.wp_slug : Models.Post.CreateSlug(post.title),
                 Content = post.description,
                 IsPublished = publish,
-                Categories = post.categories
+                Categories = post.categories.Select(c=>new Category{Name = c.ToLower()}).ToList()
             };
 
             if (post.dateCreated != DateTime.MinValue)
@@ -43,7 +45,7 @@ namespace Miniblog.Core.Services
 
             _blog.SavePost(newPost).GetAwaiter().GetResult();
 
-            return newPost.ID;
+            return newPost.Id;
         }
 
         public bool DeletePost(string key, string postid, string username, string password, bool publish)
@@ -73,7 +75,7 @@ namespace Miniblog.Core.Services
                 existing.Slug = post.wp_slug;
                 existing.Content = post.description;
                 existing.IsPublished = publish;
-                existing.Categories = post.categories;
+                existing.Categories = post.categories.Select(c=>new Category{Name = c.ToLower()}).ToList();
 
                 if (post.dateCreated != DateTime.MinValue)
                 {
@@ -160,7 +162,8 @@ namespace Miniblog.Core.Services
 
         private void ValidateUser(string username, string password)
         {
-            if (_userServices.ValidateUser(username, password)==false)
+            var task = Task.Run<bool>(async () => await _userServices.ValidateUser(username, password).ConfigureAwait(false));
+            if (task.Result == false)
             {
                 throw new MetaWeblogException("Unauthorized");
             }
@@ -178,13 +181,13 @@ namespace Miniblog.Core.Services
 
             return new WilderMinds.MetaWeblog.Post
             {
-                postid = post.ID,
+                postid = post.Id,
                 title = post.Title,
                 wp_slug = post.Slug,
                 permalink = url + post.GetLink(),
                 dateCreated = post.PubDate,
                 description = post.Content,
-                categories = post.Categories.ToArray()
+                categories = post.Categories.Select(x=>x.Name).ToArray()
             };
         }
     }

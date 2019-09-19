@@ -1,7 +1,9 @@
-﻿namespace Miniblog.Core.Services
+﻿using System.Threading.Tasks;
+
+namespace Miniblog.Core.Services
 {
     public interface IUserServices
     {
-        bool ValidateUser(string username, string password);
+        Task<bool> ValidateUser(string username, string password);
     }
 }

@@ -18,7 +18,7 @@
         <time datetime="@Model.PubDate.ToString("s")" itemprop="datePublished">Published @Model.PubDate.ToString("MMM d, yyyy")</time>
         @if (User.Identity.IsAuthenticated)
         {
-            <a asp-controller="Blog" asp-action="edit" asp-route-id="@Model.ID" title="Edit the post">Edit post</a>
+            <a asp-controller="Blog" asp-action="edit" asp-route-id="@Model.Id" title="Edit the post">Edit post</a>
         }
     </header>
 
@@ -31,9 +31,9 @@
         {
             <ul class="categories">
                 <li> Posted in </li>
-                @foreach (string cat in Model.Categories)
+                @foreach (Category cat in Model.Categories)
                 {
-                    <li itemprop="articleSection"><a asp-controller="Blog" asp-action="Category" asp-route-category="@cat.ToLowerInvariant()" asp-route-page="">@cat</a></li>
+                    <li itemprop="articleSection"><a asp-controller="Blog" asp-action="Category" asp-route-category="@cat.Name.ToLowerInvariant()" asp-route-page="">@cat.Name</a></li>
                 }
             </ul>
             <text>and has</text>

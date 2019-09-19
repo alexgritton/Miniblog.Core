@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Configuration;
 
@@ -14,7 +15,7 @@ namespace Miniblog.Core.Services
             _config = config;
         }
 
-        public bool ValidateUser(string username, string password)
+        public async Task<bool> ValidateUser(string username, string password)
         {
             return username == _config["user:username"] && VerifyHashedPassword(password, _config);
         }

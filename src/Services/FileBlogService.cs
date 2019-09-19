@@ -46,11 +46,7 @@ namespace Miniblog.Core.Services
         public virtual Task<IEnumerable<Post>> GetPostsByCategory(string category)
         {
             bool isAdmin = IsAdmin();
-
-            var posts = from p in _cache
-                        where p.PubDate <= DateTime.UtcNow && (p.IsPublished || isAdmin)
-                        where p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase)
-                        select p;
+            var posts = _cache.Where(x=>x.PubDate <= DateTime.UtcNow && (x.IsPublished || isAdmin) && x.Categories.Any(c=>c.Name.ToLower() == category.ToLower()));
 
             return Task.FromResult(posts);
         }
@@ -70,7 +66,7 @@ namespace Miniblog.Core.Services
 
         public virtual Task<Post> GetPostById(string id)
         {
-            var post = _cache.FirstOrDefault(p => p.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+            var post = _cache.FirstOrDefault(p => p.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
             bool isAdmin = IsAdmin();
 
             if (post != null && post.PubDate <= DateTime.UtcNow && (post.IsPublished || isAdmin))
@@ -88,7 +84,7 @@ namespace Miniblog.Core.Services
             var categories = _cache
                 .Where(p => p.IsPublished || isAdmin)
                 .SelectMany(post => post.Categories)
-                .Select(cat => cat.ToLowerInvariant())
+                .Select(cat => cat.Name.ToLowerInvariant())
                 .Distinct();
 
             return Task.FromResult(categories);
@@ -113,9 +109,9 @@ namespace Miniblog.Core.Services
                             ));
 
             XElement categories = doc.XPathSelectElement("post/categories");
-            foreach (string category in post.Categories)
+            foreach (var category in post.Categories)
             {
-                categories.Add(new XElement("category", category));
+                categories.Add(new XElement("category", category.Name));
             }
 
             XElement comments = doc.XPathSelectElement("post/comments");
@@ -128,7 +124,7 @@ namespace Miniblog.Core.Services
                         new XElement("date", FormatDateTime(comment.PubDate)),
                         new XElement("content", comment.Content),
                         new XAttribute("isAdmin", comment.IsAdmin),
-                        new XAttribute("id", comment.ID)
+                        new XAttribute("id", comment.Id)
                     ));
             }
 
@@ -184,7 +180,7 @@ namespace Miniblog.Core.Services
 
         private string GetFilePath(Post post)
         {
-            return Path.Combine(_folder, post.ID + ".xml");
+            return Path.Combine(_folder, post.Id + ".xml");
         }
 
         private void Initialize()
@@ -205,7 +201,7 @@ namespace Miniblog.Core.Services
 
                 Post post = new Post
                 {
-                    ID = Path.GetFileNameWithoutExtension(file),
+                    Id = Path.GetFileNameWithoutExtension(file),
                     Title = ReadValue(doc, "title"),
                     Excerpt = ReadValue(doc, "excerpt"),
                     Content = ReadValue(doc, "content"),
@@ -234,7 +230,7 @@ namespace Miniblog.Core.Services
                 list.Add(node.Value);
             }
 
-            post.Categories = list.ToArray();
+            post.Categories = list.Select(c=>new Category{Name = c}).ToArray();
         }
 
         private static void LoadComments(Post post, XElement doc)
@@ -248,7 +244,7 @@ namespace Miniblog.Core.Services
             {
                 Comment comment = new Comment()
                 {
-                    ID = ReadAttribute(node, "id"),
+                    Id = ReadAttribute(node, "id"),
                     Author = ReadValue(node, "author"),
                     Email = ReadValue(node, "email"),
                     IsAdmin = bool.Parse(ReadAttribute(node, "isAdmin", "false")),

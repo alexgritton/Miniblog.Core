@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Miniblog.Core.Models
 {
-    public class Comment
-    {
-        [Required]
-        public string ID { get; set; } = Guid.NewGuid().ToString();
+    public class Comment : Base
+    {       
+        public string PostId { get; set; }
+        public Post Post { get; set; }
 
         [Required]
         public string Author { get; set; }
