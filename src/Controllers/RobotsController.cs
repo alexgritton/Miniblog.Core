@@ -87,13 +87,13 @@ namespace Miniblog.Core.Controllers
                 xml.WriteElementString("homepagelink", host);
 
                 xml.WriteStartElement("apis");
-                xml.WriteStartElement("api");
-                xml.WriteAttributeString("name", "MetaWeblog");
-                xml.WriteAttributeString("preferred", "true");
-                xml.WriteAttributeString("apilink", host + "/metaweblog");
-                xml.WriteAttributeString("blogid", "1");
+                // xml.WriteStartElement("api");
+                // xml.WriteAttributeString("name", "MetaWeblog");
+                // xml.WriteAttributeString("preferred", "true");
+                // xml.WriteAttributeString("apilink", host + "/metaweblog");
+                // xml.WriteAttributeString("blogid", "1");
 
-                xml.WriteEndElement(); // api
+                // xml.WriteEndElement(); // api
                 xml.WriteEndElement(); // apis
                 xml.WriteEndElement(); // service
                 xml.WriteEndElement(); // rsd

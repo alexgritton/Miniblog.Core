@@ -78,7 +78,7 @@ namespace Miniblog.Core
             services.AddTransient<IBlogService, DbBlogService>();
             services.Configure<BlogSettings>(Configuration.GetSection("blog"));
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddMetaWeblog<MetaWeblogService>();
+            // services.AddMetaWeblog<MetaWeblogService>();
 
             // Progressive Web Apps https://github.com/madskristensen/WebEssentials.AspNetCore.ServiceWorker
             services.AddProgressiveWebApp(new WebEssentials.AspNetCore.Pwa.PwaOptions
@@ -148,7 +148,7 @@ namespace Miniblog.Core
                 app.UseHttpsRedirection();
             // }
 
-            app.UseMetaWeblog("/metaweblog");
+            // app.UseMetaWeblog("/metaweblog");
             app.UseCookiePolicy();
             app.UseAuthentication();
 
